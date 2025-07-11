@@ -1,0 +1,29 @@
+# Outils de reconnaissance supplémentaires
+
+Ces outils vont au-delà de Nmap et Gobuster pour obtenir un maximum d'informations avant d'attaquer.
+
+---
+
+🔹 OSINT / Collecte
+- theHarvester       : emails, sous-domaines, IPs
+- Spiderfoot         : OSINT automatisé (web, DNS, réseaux sociaux)
+- Recon-ng           : framework modulaire pour collecte de données
+- Maltego            : visualisation des liens entre entités (graphique)
+
+🔹 DNS / Sous-domaines
+- Amass              : collecte passive et active de sous-domaines
+- Sublist3r          : rapide pour sous-domaines publics
+- crt.sh             : récupération de sous-domaines via certificats SSL
+- DNSenum / DNSrecon : brute-force DNS, transferts de zones
+- Fierce             : bon pour la découverte de DNS internes
+
+🔹 Scanners réseaux spécialisés
+- Masscan            : scan ultra rapide de tous les ports
+- Rustscan           : plus rapide que Nmap, combine avec Nmap
+- ZMap               : analyse massive (ex : tout l’Internet)
+
+🔹 Fingerprinting / Web
+- WhatWeb            : détection technologies web (CMS, serveurs…)
+- Wappalyzer         : extension navigateur
+- httprobe           : vérifie rapidement si des hôtes répondent HTTP
+- nuclei             : scanner de vulnérabilités basé sur des templates

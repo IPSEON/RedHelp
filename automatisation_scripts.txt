@@ -1,0 +1,39 @@
+# Automatisation des Scripts - Comment créer tes propres outils
+
+Créer des scripts Bash permet de ne pas taper les mêmes commandes à chaque fois.
+
+🎯 Objectif : Gagner du temps et éviter les erreurs en utilisant des scripts personnalisés.
+
+---
+
+🔧 1. Créer un fichier script :
+    nano mon_script.sh
+
+🔧 2. Commencer toujours par la ligne :
+    #!/bin/bash
+
+🔧 3. Ajouter tes commandes :
+    Exemple :
+    #!/bin/bash
+    echo "[+] Scan Nmap rapide"
+    nmap -T4 -F $1
+
+    # Pour l'utiliser : ./mon_script.sh 192.168.1.10
+
+🔧 4. Le rendre exécutable :
+    chmod +x mon_script.sh
+
+🔧 5. Le placer dans un dossier accessible :
+    mkdir ~/scripts
+    mv mon_script.sh ~/scripts/
+    echo 'export PATH=$PATH:~/scripts' >> ~/.bashrc
+    source ~/.bashrc
+
+Tu peux maintenant lancer ton script de n'importe où.
+
+---
+
+💡 Conseils :
+- Crée un script par tâche (enum_web.sh, reverse_shell.sh, transfert.sh…)
+- Commence simple, et ajoute des options si besoin
+- Ajoute des couleurs ou des logs pour améliorer la lisibilité

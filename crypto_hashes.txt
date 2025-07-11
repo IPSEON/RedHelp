@@ -1,0 +1,57 @@
+# Crypto & Hashes - Identifier, comprendre et casser les mots de passe hachés
+
+🎯 Dans les CTF ou audits, tu trouves souvent des hashs. Le but est de deviner à quel algo ils appartiennent, puis de les "casser".
+
+---
+
+🔹 Qu’est-ce qu’un hash ?
+- Une empreinte numérique unique d’un texte.
+- Non réversible ! On ne "décrypte" pas, on **compare**.
+- Même entrée → même sortie, toujours.
+
+---
+
+🔹 Identifier un hash
+
+Commandes :
+    hashid <hash>
+    hash-identifier
+
+Formes connues :
+- MD5     → 32 chars, ex : e10adc3949ba59abbe56e057f20f883e
+- SHA1    → 40 chars
+- bcrypt  → commence par $2y$, $2a$
+- NTLM    → souvent 32 chars comme MD5, mais Windows
+- SHA256  → 64 chars
+
+---
+
+🔹 Casser un hash
+
+Méthode 1 : John the Ripper
+    echo "<hash>" > hash.txt
+    john --wordlist=rockyou.txt hash.txt
+
+Méthode 2 : Hashcat
+    hashcat -m <mode> -a 0 hash.txt rockyou.txt
+
+    Ex :
+    -m 0 = MD5
+    -m 100 = SHA1
+    -m 1000 = NTLM
+    -m 1800 = bcrypt
+
+Méthode 3 : Sites en ligne
+    https://crackstation.net/
+    https://hashes.com/en/decrypt/hash
+
+---
+
+🔹 Générer un hash pour test :
+    echo -n 'admin' | md5sum
+    echo -n 'admin' | sha1sum
+
+---
+
+💡 Astuce :
+Crée un fichier `hashes.txt` dans chaque audit pour lister tous les hashs trouvés + type estimé + méthode testée.

