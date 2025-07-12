@@ -6,7 +6,6 @@
 
 🔹 Qu’est-ce qu’un hash ?
 - Une empreinte numérique unique d’un texte.
-- Non réversible ! On ne "décrypte" pas, on **compare**.
 - Même entrée → même sortie, toujours.
 
 ---
