@@ -58,6 +58,7 @@ PHASE 2 - ENUMÉRATION & ANALYSE WEB
 9. Analyse manuelle :
 ➤ Checklist :
     - Inspecter le code source HTML
+    - Ajout des port ouvert a la fin des liens (ex: https://192.1XX.X.X:10000/)
     - robots.txt, .git, .env, .bak, config.php, etc.
     - Fichiers d'erreur ou config
     - Injection dans les URL et paramètres
