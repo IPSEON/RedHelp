@@ -42,3 +42,12 @@ Lorsque des filtres empêchent tes attaques classiques, tu peux les contourner a
 - Injections en base64
 - Double URL encoding : %2527 (pour %27 → ')
 - Payload dans un cookie ou un User-Agent
+
+---
+
+🔹 Bypass via archivage (tar)
+- Si tu n’as pas les droits de lecture sur un fichier, mais que tu peux le manipuler indirectement (via un dossier ou une tâche), tu peux tenter de l’archiver.
+- Exemple :
+    ./tar -cvf archive.tar /var/backups/.old_pass.bak
+    ./tar -xvf archive.tar
+- Cela permet d’accéder au contenu si les droits sur le dossier parent permettent la lecture du inode même sans lecture directe du fichier.
