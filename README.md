@@ -33,12 +33,6 @@ Ce guide vise à t'aider à gagner du temps pendant les TP, CTF ou audits d'entr
 
 ---
 
-Sites :
-- [Decode Brain Fuck](https://brainfuck.rmjtromp.dev/)
-- [RevShells](https://www.revshells.com/)
-
-
-
 🧰 Outils et générateurs
 -------------------------
 Site                                    | Utilité
