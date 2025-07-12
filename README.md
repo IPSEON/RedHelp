@@ -32,3 +32,7 @@ Ce guide vise à t'aider à gagner du temps pendant les TP, CTF ou audits d'entr
   ➤ Liste commentée de payloads pour XSS, LFI, SSTI, reverse shell, command injection, etc.
 
 ---
+
+Sites :
+- Decode Brain Fuck 
+`https://brainfuck.rmjtromp.dev/`
