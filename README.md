@@ -45,6 +45,7 @@ Site                                    | Utilité
 [CyberChef](https://gchq.github.io/CyberChef/)       | Couteau suisse pour encodage, décodage, crypto, etc.
 [Decoder](https://decoder.link)                    | Tester et analyser des requêtes HTTP, injections, payloads
 [Decode Brain Fuck](https://brainfuck.rmjtromp.dev/)               | Décodeur BrainFuck pour analyser des payloads obscurs
+[GTFOBins](https://gtfobins.github.io/)          |GTFOBins is a curated list of Unix binaries that can be used to bypass local security restrictions in misconfigured systems.
 
 📚 Bases de données de vulnérabilités
 --------------------------------------
